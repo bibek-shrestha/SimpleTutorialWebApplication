@@ -30,4 +30,17 @@ public class FileController: ControllerBase
         var bytes = System.IO.File.ReadAllBytes(filePath);
         return File(bytes, contentType, Path.GetFileName(filePath));
     }
+
+    [HttpPost]
+    public async Task<ActionResult> UploadFile(IFormFile file)
+    {
+        if (file.Length == 0 || file.Length > 20971520 || file.ContentType != "application/pdf") {
+            return BadRequest("No file or Invalid file content.");
+        }
+        var path = Path.Combine(Directory.GetCurrentDirectory(), $"uploaded_file_{Guid.NewGuid()}.pdf");
+        using (var stream = new FileStream(path,FileMode.Create)) {
+            await file.CopyToAsync(stream);
+        }
+        return Ok("Your file has been succesfully uploaded.");
+    }
 }
