@@ -49,4 +49,20 @@ public class PointsOfInterestController : ControllerBase
         }, finalPointOfInterest);
     }
 
+    [HttpPut("{pointofinterestid}")]
+    public ActionResult<PointOfInterestDto> updatePointOfInterest(int cityId, int pointOfInterestId, PointOfInterestUpdateDto pointOfInterestUpdateDto)
+    {
+        var city = CitiesDataStore.Current.Cities.FirstOrDefault(city => city.Id == cityId);
+        if (city == null)
+        { return NotFound(); }
+        var pointOfInterest = city.PointOfInterests.FirstOrDefault(pointOfInterest => pointOfInterest.Id == pointOfInterestId);
+        if (pointOfInterest == null)
+        {
+            return NotFound();
+        }
+        pointOfInterest.Name = pointOfInterestUpdateDto.Name;
+        pointOfInterest.Description = pointOfInterestUpdateDto.Description;
+        return NoContent();
+    }
+
 }
