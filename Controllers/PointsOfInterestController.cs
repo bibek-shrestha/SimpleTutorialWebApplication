@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.JsonPatch;
+using Microsoft.AspNetCore.Mvc;
 using SimpleTutorialWebApplication.Models;
 
 namespace SimpleTutorialWebApplication.Controllers;
@@ -27,7 +28,7 @@ public class PointsOfInterestController : ControllerBase
     }
 
     [HttpPost]
-    public ActionResult<PointOfInterestDto> addPointOfInterest(int cityId, PointOfInterestCreationDto pointOfInterestCreationDto)
+    public ActionResult<PointOfInterestDto> AddPointOfInterest(int cityId, PointOfInterestCreationDto pointOfInterestCreationDto)
     {
         var city = CitiesDataStore.Current.Cities.FirstOrDefault(city => city.Id == cityId);
         if (city == null)
@@ -50,7 +51,7 @@ public class PointsOfInterestController : ControllerBase
     }
 
     [HttpPut("{pointofinterestid}")]
-    public ActionResult<PointOfInterestDto> updatePointOfInterest(int cityId, int pointOfInterestId, PointOfInterestUpdateDto pointOfInterestUpdateDto)
+    public ActionResult<PointOfInterestDto> UpdatePointOfInterest(int cityId, int pointOfInterestId, PointOfInterestUpdateDto pointOfInterestUpdateDto)
     {
         var city = CitiesDataStore.Current.Cities.FirstOrDefault(city => city.Id == cityId);
         if (city == null)
@@ -62,6 +63,38 @@ public class PointsOfInterestController : ControllerBase
         }
         pointOfInterest.Name = pointOfInterestUpdateDto.Name;
         pointOfInterest.Description = pointOfInterestUpdateDto.Description;
+        return NoContent();
+    }
+
+    [HttpPatch("{pointofinterestid}")]
+    public ActionResult PartiallyUpdatePointOfInterest(int cityId, int pointOfInterestId
+            , JsonPatchDocument<PointOfInterestUpdateDto> patchDocument)
+    {
+        var city = CitiesDataStore.Current.Cities.FirstOrDefault(city => city.Id == cityId);
+        if (city == null)
+        {
+            return NotFound();
+        }
+        var pointOfInterestFromStore = city.PointOfInterests.FirstOrDefault(pointOfInterest => pointOfInterest.Id == pointOfInterestId);
+        if (pointOfInterestFromStore == null)
+        {
+            return NotFound();
+        }
+        var pointOfInterestUpdateDto = new PointOfInterestUpdateDto() {
+            Name = pointOfInterestFromStore.Name,
+            Description = pointOfInterestFromStore.Description
+        };
+        patchDocument.ApplyTo(pointOfInterestUpdateDto, ModelState);
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+        if (!TryValidateModel(pointOfInterestUpdateDto))
+        {
+            return BadRequest(ModelState);
+        }
+        pointOfInterestFromStore.Name = pointOfInterestUpdateDto.Name;
+        pointOfInterestFromStore.Description = pointOfInterestUpdateDto.Description;
         return NoContent();
     }
 
