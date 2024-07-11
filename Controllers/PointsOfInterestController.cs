@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using SimpleTutorialWebApplication.Entities;
@@ -9,6 +10,7 @@ namespace SimpleTutorialWebApplication.Controllers;
 
 [ApiController]
 [Route("api/cities/{cityid}/pointsofinterest")]
+[Authorize]
 public class PointsOfInterestController : ControllerBase
 {
     private readonly ILogger<PointsOfInterestController> _logger;
