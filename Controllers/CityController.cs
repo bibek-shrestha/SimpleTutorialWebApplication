@@ -20,13 +20,15 @@ namespace SimpleTutorialWebApplication.AddControllers
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         }
         [HttpGet]
-        public async  Task<ActionResult<IEnumerable<CityWithoutPointOfInterestDto>>> GetCities() {
-            var cities = await _cityInfoRepository.GetAllCitiesAsync();
+        public async  Task<ActionResult<IEnumerable<CityWithoutPointOfInterestDto>>> GetCities(
+            [FromQuery(Name = "name_filter")] string cityName
+        ) {
+            var cities = await _cityInfoRepository.GetCitiesAsync(cityName);
             return Ok(_mapper.Map<IEnumerable<CityWithoutPointOfInterestDto>>(cities));
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetCity(int id, bool includePointOfInterests = false) {
+        public async Task<IActionResult> GetCity(int id, [FromQuery(Name = "include_point_of_interest")] bool includePointOfInterests = false) {
             var city = await _cityInfoRepository.GetCityAsync(id, includePointOfInterests);
             return city == null
                 ? NotFound()

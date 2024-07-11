@@ -18,6 +18,12 @@ public class CityInfoRepository: ICityInfoRepository
         return await _context.Cities.OrderBy(c => c.Name).ToListAsync();
     }
 
+    public async Task<IEnumerable<City>> GetCitiesAsync(string? name) {
+        if (string.IsNullOrWhiteSpace(name)) return await GetAllCitiesAsync();
+        name = name.Trim();
+        return await _context.Cities.Where(c => c.Name == name).OrderBy(c => c.Id).ToListAsync();
+    }
+
     public async Task<bool> CityExistsAsync(int cityId) {
         return await _context.Cities.AnyAsync(c => c.Id == cityId);
     }
