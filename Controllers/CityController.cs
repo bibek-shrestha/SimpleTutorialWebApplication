@@ -21,9 +21,10 @@ namespace SimpleTutorialWebApplication.AddControllers
         }
         [HttpGet]
         public async  Task<ActionResult<IEnumerable<CityWithoutPointOfInterestDto>>> GetCities(
-            [FromQuery(Name = "name_filter")] string cityName
+            [FromQuery(Name = "name_filter")] string? cityName
+            , [FromQuery(Name = "search_query")] string? searchQuery
         ) {
-            var cities = await _cityInfoRepository.GetCitiesAsync(cityName);
+            var cities = await _cityInfoRepository.GetCitiesAsync(cityName, searchQuery);
             return Ok(_mapper.Map<IEnumerable<CityWithoutPointOfInterestDto>>(cities));
         }
 
