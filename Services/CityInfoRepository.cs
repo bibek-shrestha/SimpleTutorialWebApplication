@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SimpleTutorialWebApplication.DbContexts;
 using SimpleTutorialWebApplication.Entities;
+using SimpleTutorialWebApplication.Models;
 
 namespace SimpleTutorialWebApplication.Services;
 
@@ -18,23 +19,28 @@ public class CityInfoRepository: ICityInfoRepository
         return await _context.Cities.OrderBy(c => c.Name).ToListAsync();
     }
 
-    public async Task<IEnumerable<City>> GetCitiesAsync(string? name, string? searchQuery) {
-        var hasNoFilter = string.IsNullOrWhiteSpace(name);
-        var hasNoSearchQuery = string.IsNullOrWhiteSpace(searchQuery);
-        if (hasNoFilter && hasNoSearchQuery) return await GetAllCitiesAsync();
+    public async Task<(IEnumerable<City>, PaginationMetadata)> GetCitiesAsync(string? name, string? searchQuery, int pageNumber, int pageSize) {
         var collection = _context.Cities as IQueryable<City>;
-        if(!hasNoFilter)
+        if(!string.IsNullOrWhiteSpace(name))
         {
             name = name.Trim();
             collection = collection.Where(c => c.Name == name);
         }
-        if(!hasNoSearchQuery)
+        if(!string.IsNullOrWhiteSpace(searchQuery))
         {
             searchQuery = searchQuery.Trim();
             collection = collection.Where(city => city.Name.Contains(searchQuery)
             || (city.Description!= null && city.Description.Contains(searchQuery)));
         }
-        return await collection.OrderBy(city => city.Name).ToListAsync();
+        var totalItemCount = await collection.CountAsync();
+        PaginationMetadata paginationMetadata = new PaginationMetadata(totalItemCount, pageSize, pageNumber);
+
+        var results =  await collection.OrderBy(city => city.Name)
+            .Skip(pageSize * (pageNumber - 1))
+            .Take(pageSize)
+            .ToListAsync();
+
+        return (results, paginationMetadata);
     }
 
     public async Task<bool> CityExistsAsync(int cityId) {

@@ -1,3 +1,4 @@
+using System.Text.Json;
 using AutoMapper;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
@@ -13,6 +14,8 @@ namespace SimpleTutorialWebApplication.AddControllers
         private readonly ICityInfoRepository _cityInfoRepository;
         private readonly IMapper _mapper;
 
+        private const int MAX_PAGE_SIZE = 20;
+
         public CityController(ICityInfoRepository cityInfoRepository
                 , IMapper mapper)
         {
@@ -23,8 +26,12 @@ namespace SimpleTutorialWebApplication.AddControllers
         public async  Task<ActionResult<IEnumerable<CityWithoutPointOfInterestDto>>> GetCities(
             [FromQuery(Name = "name_filter")] string? cityName
             , [FromQuery(Name = "search_query")] string? searchQuery
+            , [FromQuery(Name = "page_number")] int pageNumber = 1
+            , [FromQuery(Name = "page_size")] int pageSize = 10
         ) {
-            var cities = await _cityInfoRepository.GetCitiesAsync(cityName, searchQuery);
+            if (pageSize > MAX_PAGE_SIZE) pageSize = MAX_PAGE_SIZE;
+            var (cities, paginationMetadata) = await _cityInfoRepository.GetCitiesAsync(cityName, searchQuery, pageNumber, pageSize);
+            Response.Headers.Add("X-Pagination", JsonSerializer.Serialize(paginationMetadata));
             return Ok(_mapper.Map<IEnumerable<CityWithoutPointOfInterestDto>>(cities));
         }
 

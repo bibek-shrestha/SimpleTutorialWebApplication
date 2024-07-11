@@ -1,4 +1,5 @@
 ﻿using SimpleTutorialWebApplication.Entities;
+using SimpleTutorialWebApplication.Models;
 
 namespace SimpleTutorialWebApplication.Services;
 
@@ -6,7 +7,7 @@ public interface ICityInfoRepository
 {
     Task<IEnumerable<City>> GetAllCitiesAsync();
 
-    Task<IEnumerable<City>> GetCitiesAsync(string? name, string? searchQuery);
+    Task<(IEnumerable<City>, PaginationMetadata)> GetCitiesAsync(string? name, string? searchQuery, int pageNumber, int pageSize);
 
     Task<City?> GetCityAsync(int cityId, bool includePointOfInterests);
 
