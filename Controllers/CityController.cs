@@ -10,7 +10,7 @@ namespace SimpleTutorialWebApplication.Controllers;
 
 [ApiController]
 [Route("api/cities")]
-[Authorize]
+[Authorize(Policy = "FromSydney")]
 public class CityController : ControllerBase
 {
 

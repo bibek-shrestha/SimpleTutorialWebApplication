@@ -46,6 +46,14 @@ builder.Services.AddAuthentication("Bearer")
             )
         };
     });
+builder.Services.AddAuthorization(options => 
+    {
+        options.AddPolicy("FromSydney", policy => 
+        {
+            policy.RequireAuthenticatedUser();
+            policy.RequireClaim("city", "Sydney");
+        });
+    });
 
 var app = builder.Build();
 
