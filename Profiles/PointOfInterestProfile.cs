@@ -9,5 +9,11 @@ public class PointOfInterestProfile: Profile
     public PointOfInterestProfile()
     {
         CreateMap<PointOfInterest, PointOfInterestDto>();
+
+        CreateMap<PointOfInterestCreationDto, PointOfInterest>();
+
+        CreateMap<PointOfInterestUpdateDto, PointOfInterest>();
+
+        CreateMap<PointOfInterest, PointOfInterestUpdateDto>();
     }
 }
