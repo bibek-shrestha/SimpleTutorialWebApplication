@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.StaticFiles;
+using Microsoft.EntityFrameworkCore;
 using Serilog;
+using SimpleTutorialWebApplication.DbContexts;
 using SimpleTutorialWebApplication.Models;
 using SimpleTutorialWebApplication.Services;
 
@@ -25,6 +27,7 @@ builder.Services.AddSingleton<FileExtensionContentTypeProvider>();
 
 builder.Services.AddTransient<IMailService, LocalMailService>();
 builder.Services.AddSingleton<CitiesDataStore>();
+builder.Services.AddDbContext<CityInfoContext>(dbContextOptions => dbContextOptions.UseSqlite(builder.Configuration["ConnectionStrings:CityInfoDBConnectionString"]));
 
 var app = builder.Build();
 
